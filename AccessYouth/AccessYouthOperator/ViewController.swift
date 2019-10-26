@@ -8,53 +8,56 @@
 
 import UIKit
 import MapKit
+import CoreLocation
+import Foundation
 
 class ViewController: UIViewController, CLLocationManagerDelegate {
     
     var mapView : MKMapView?
-    var locationManager : CLLocationManager?
+    let locationManager = CLLocationManager()
+    let broadcastButton = UIButton()
+    var isBroadcastOn = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        mapView = MKMapView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: view.frame.size.height - 100))
-        mapView!.mapType = MKMapType.standard
-        mapView!.isZoomEnabled = true
-        mapView!.isScrollEnabled = true
-        self.view.addSubview(self.mapView!)
-        
-        locationManager = CLLocationManager()
-        locationManager!.delegate = self
-        if let locationManager = self.locationManager {
-            locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
-            locationManager.requestAlwaysAuthorization()
-            print("R")
-            locationManager.distanceFilter = 50
-            locationManager.startUpdatingLocation()
-        }
-    }
-    func locationManager(manager: CLLocationManager, didUpdateToLocation newLocation: CLLocation, fromLocation oldLocation: CLLocation) {
+        self.mapView = MKMapView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: view.frame.size.height - 100))
         if let mapView = self.mapView {
-            let region = MKCoordinateRegion(center: newLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
-            mapView.setRegion(region, animated: true)
-            mapView.showsUserLocation = true
+            mapView.mapType = MKMapType.standard
+            mapView.isZoomEnabled = true
+            mapView.isScrollEnabled = true
+            self.view.addSubview(mapView)
+        }
+        
+        broadcastButton.backgroundColor = .white
+        broadcastButton.setTitleColor(.brown, for: .normal)
+        broadcastButton.setTitle(isBroadcastOn ? "Turn Off" : "Turn On", for: .normal)
+        
+        view.addSubview(broadcastButton)
+        
+        broadcastButtonConstraints()
+        
+        locationManager.requestAlwaysAuthorization()
+        locationManager.requestWhenInUseAuthorization()
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
+            locationManager.startUpdatingLocation()
+            print("R")
         }
     }
-    func getCurrentLocation() {
-        let locationStatus = CLLocationManager.authorizationStatus()
-        if (locationStatus == .denied || locationStatus == .restricted || !CLLocationManager.locationServicesEnabled()) {
-            let alert = UIAlertController(title: "Location Restricted", message: "Please go to settings and authorize location", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            self.present(alert, animated: true)
-            return
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.last{
+            let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+            print("Latitude: \(location.coordinate.latitude)")
+            print("Longitude: \(location.coordinate.longitude)")
+            let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
+            if let mapView = self.mapView {
+                mapView.setRegion(region, animated: true)
+                mapView.showsUserLocation = true
+            }
         }
-        
-        if(locationStatus == .notDetermined){
-            locationManager!.requestAlwaysAuthorization()
-            return
-        }
-        
-        
     }
 
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -71,6 +74,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         default:
             print("the location permission dialog haven't shown before, user haven't tap allow/disallow")
         }
+    }
+    
+    func sendLocation(_ latitude: Double, _ longitude: Double) {
+        // send location info to back-end
+    }
+    
+    func broadcastButtonConstraints() {
+        broadcastButton.translatesAutoresizingMaskIntoConstraints = false
+        broadcastButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
+        broadcastButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+        broadcastButton.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        broadcastButton.centerYAnchor.constraint(equalTo: view.bottomAnchor, constant: -50).isActive = true
     }
 
 }
