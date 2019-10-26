@@ -17,7 +17,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
 
         window = UIWindow(frame: UIScreen.main.bounds)
-        print("in delegate")
         let homeViewController = ViewController()
         homeViewController.view.backgroundColor = UIColor.white
         window!.rootViewController = homeViewController
