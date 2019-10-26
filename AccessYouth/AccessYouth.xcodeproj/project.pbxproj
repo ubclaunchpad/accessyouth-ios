@@ -230,6 +230,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5F89A01D235BC9B00070FDC8 /* Build configuration list for PBXNativeTarget "AccessYouth" */;
 			buildPhases = (
+				5F89A05E2364F5560070FDC8 /* Swiftlint */,
 				5F899FEF235BC9AE0070FDC8 /* Sources */,
 				5F899FF0235BC9AE0070FDC8 /* Frameworks */,
 				5F899FF1235BC9AE0070FDC8 /* Resources */,
@@ -283,6 +284,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5F89A051235BC9D40070FDC8 /* Build configuration list for PBXNativeTarget "AccessYouthOperator" */;
 			buildPhases = (
+				5F89A05F2364F58D0070FDC8 /* Swiftlint */,
 				5F89A026235BC9D30070FDC8 /* Sources */,
 				5F89A027235BC9D30070FDC8 /* Frameworks */,
 				5F89A028235BC9D30070FDC8 /* Resources */,
@@ -437,6 +439,45 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		5F89A05E2364F5560070FDC8 /* Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+		5F89A05F2364F58D0070FDC8 /* Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		5F899FEF235BC9AE0070FDC8 /* Sources */ = {
