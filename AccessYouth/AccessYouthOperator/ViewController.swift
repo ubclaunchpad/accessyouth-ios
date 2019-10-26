@@ -21,7 +21,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        self.mapView = MKMapView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: view.frame.size.height - 100))
+        self.mapView = MKMapView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: view.frame.size.height))
         if let mapView = self.mapView {
             mapView.mapType = MKMapType.standard
             mapView.isZoomEnabled = true
@@ -29,10 +29,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             self.view.addSubview(mapView)
         }
         
-        broadcastButton.backgroundColor = .white
+        broadcastButton.backgroundColor = .purple
         broadcastButton.setTitleColor(.brown, for: .normal)
         broadcastButton.setTitle(isBroadcastOn ? "Turn Off" : "Turn On", for: .normal)
-        
+        broadcastButton.layer.borderColor = UIColor.black.cgColor
+        broadcastButton.layer.cornerRadius = 2.0
         view.addSubview(broadcastButton)
         
         broadcastButtonConstraints()
@@ -43,7 +44,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
             locationManager.startUpdatingLocation()
-            print("R")
         }
     }
     
