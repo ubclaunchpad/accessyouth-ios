@@ -19,6 +19,8 @@
 		5F89A039235BC9D40070FDC8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5F89A037235BC9D40070FDC8 /* LaunchScreen.storyboard */; };
 		5F89A044235BC9D40070FDC8 /* AccessYouthOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F89A043235BC9D40070FDC8 /* AccessYouthOperatorTests.swift */; };
 		5F89A04F235BC9D40070FDC8 /* AccessYouthOperatorUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F89A04E235BC9D40070FDC8 /* AccessYouthOperatorUITests.swift */; };
+		5F89A05C2364EDEF0070FDC8 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F89A05B2364EDEF0070FDC8 /* Constants.swift */; };
+		5F89A05D2364EDF30070FDC8 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F89A05B2364EDEF0070FDC8 /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +79,7 @@
 		5F89A04A235BC9D40070FDC8 /* AccessYouthOperatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AccessYouthOperatorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F89A04E235BC9D40070FDC8 /* AccessYouthOperatorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessYouthOperatorUITests.swift; sourceTree = "<group>"; };
 		5F89A050235BC9D40070FDC8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5F89A05B2364EDEF0070FDC8 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,9 +132,10 @@
 			isa = PBXGroup;
 			children = (
 				5F899FF5235BC9AE0070FDC8 /* AccessYouth */,
+				5F89A02B235BC9D30070FDC8 /* AccessYouthOperator */,
+				5F89A05A2364EDCF0070FDC8 /* Shared */,
 				5F89A00C235BC9B00070FDC8 /* AccessYouthTests */,
 				5F89A017235BC9B00070FDC8 /* AccessYouthUITests */,
-				5F89A02B235BC9D30070FDC8 /* AccessYouthOperator */,
 				5F89A042235BC9D40070FDC8 /* AccessYouthOperatorTests */,
 				5F89A04D235BC9D40070FDC8 /* AccessYouthOperatorUITests */,
 				5F899FF4235BC9AE0070FDC8 /* Products */,
@@ -209,6 +213,14 @@
 				5F89A050235BC9D40070FDC8 /* Info.plist */,
 			);
 			path = AccessYouthOperatorUITests;
+			sourceTree = "<group>";
+		};
+		5F89A05A2364EDCF0070FDC8 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				5F89A05B2364EDEF0070FDC8 /* Constants.swift */,
+			);
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -433,6 +445,7 @@
 			files = (
 				5F899FFB235BC9AE0070FDC8 /* ViewController.swift in Sources */,
 				5F899FF7235BC9AE0070FDC8 /* AppDelegate.swift in Sources */,
+				5F89A05C2364EDEF0070FDC8 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -458,6 +471,7 @@
 			files = (
 				5F89A031235BC9D30070FDC8 /* ViewController.swift in Sources */,
 				5F89A02D235BC9D30070FDC8 /* AppDelegate.swift in Sources */,
+				5F89A05D2364EDF30070FDC8 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
