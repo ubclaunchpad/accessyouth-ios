@@ -11,7 +11,7 @@ import MapKit
 import CoreLocation
 import Foundation
 
-class ViewController: UIViewController, CLLocationManagerDelegate {
+class ViewController: UIViewController {
     let locationManager = CLLocationManager()
     let broadcastButton = UIButton()
     var mapView: MKMapView?
@@ -39,36 +39,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         // set up button to turn on/off location broadcast of bus location
         broadcastButtonSetup()
 
-        // request location access
-        locationManager.requestAlwaysAuthorization()
-        locationManager.requestWhenInUseAuthorization()
-        if CLLocationManager.locationServicesEnabled() {
-            locationManager.delegate = self
-            locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
-            locationManager.startUpdatingLocation()
-        }
+        // request location access and start updating
+        locationManagerSetup()
 
         // set up timer to poll for location at a fixed interval
         timer = Timer.scheduledTimer(timeInterval: broadcastInterval, target: self, selector: #selector(sendLocation),
                                      userInfo: nil, repeats: true)
-    }
-
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.last {
-            let coordinate = location.coordinate
-            busLocation = CLLocationCoordinate2D(latitude: coordinate.latitude, longitude: coordinate.longitude)
-            if let mapView = self.mapView {
-                let region = MKCoordinateRegion(center: busLocation, span: mapView.region.span)
-                mapView.setRegion(region, animated: true)
-            }
-        }
-    }
-
-    @objc func sendLocation() {
-        if isBroadcastOn {
-            // send location to backend
-            print("Latitude: \(busLocation.latitude)\nLongitude: \(busLocation.longitude)")
-        }
     }
 
     func broadcastButtonSetup() {
@@ -89,5 +65,35 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         isBroadcastOn = isBroadcastOn ? false : true
         broadcastButton.setTitle(isBroadcastOn ? "Turn Off" : "Turn On", for: .normal)
         print("Button Tapped, now \(isBroadcastOn)")
+    }
+}
+
+extension ViewController: CLLocationManagerDelegate {
+    func locationManagerSetup() {
+        // request location access
+        locationManager.requestAlwaysAuthorization()
+        locationManager.requestWhenInUseAuthorization()
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
+            locationManager.startUpdatingLocation()
+        }
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.last {
+            busLocation = location.coordinate
+            if let mapView = self.mapView {
+                let region = MKCoordinateRegion(center: busLocation, span: mapView.region.span)
+                mapView.setRegion(region, animated: true)
+            }
+        }
+    }
+
+    @objc func sendLocation() {
+        if isBroadcastOn {
+            // send location to backend
+            print("Latitude: \(busLocation.latitude)\nLongitude: \(busLocation.longitude)")
+        }
     }
 }
