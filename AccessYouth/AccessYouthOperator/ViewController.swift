@@ -2,7 +2,7 @@
 //  ViewController.swift
 //  AccessYouthOperator
 //
-//  Created by Yichen Cao on 2 019-10-19.
+//  Created by Yichen Cao on 2019-10-19.
 //  Copyright © 2019 UBC Launch Pad. All rights reserved.
 //
 
@@ -12,26 +12,34 @@ import CoreLocation
 import Foundation
 
 class ViewController: UIViewController, CLLocationManagerDelegate {
-
-    var mapView: MKMapView?
     let locationManager = CLLocationManager()
     let broadcastButton = UIButton()
+    var mapView: MKMapView?
+    var timer: Timer?
+    var busLocation = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     var isBroadcastOn = false
+    let broadcastInterval: Double = 1.0
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        // set up mapview
         self.mapView = MKMapView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width,
                                                height: view.frame.size.height))
         if let mapView = self.mapView {
             mapView.mapType = MKMapType.standard
             mapView.isZoomEnabled = true
             mapView.isScrollEnabled = true
+            mapView.showsUserLocation = true
+            let region = MKCoordinateRegion(center: busLocation, span:
+                MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02))
+            mapView.setRegion(region, animated: true)
             self.view.addSubview(mapView)
         }
 
+        // set up button to turn on/off location broadcast of bus location
         broadcastButtonSetup()
 
+        // request location access
         locationManager.requestAlwaysAuthorization()
         locationManager.requestWhenInUseAuthorization()
         if CLLocationManager.locationServicesEnabled() {
@@ -39,24 +47,28 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
             locationManager.startUpdatingLocation()
         }
+
+        // set up timer to poll for location at a fixed interval
+        timer = Timer.scheduledTimer(timeInterval: broadcastInterval, target: self, selector: #selector(sendLocation),
+                                     userInfo: nil, repeats: true)
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
-            let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-//            print("Latitude: \(location.coordinate.latitude)")
-//            print("Longitude: \(location.coordinate.longitude)")
-            let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.05,
-                                                                                   longitudeDelta: 0.05))
+            let coordinate = location.coordinate
+            busLocation = CLLocationCoordinate2D(latitude: coordinate.latitude, longitude: coordinate.longitude)
             if let mapView = self.mapView {
+                let region = MKCoordinateRegion(center: busLocation, span: mapView.region.span)
                 mapView.setRegion(region, animated: true)
-                mapView.showsUserLocation = true
             }
         }
     }
 
-    func sendLocation(_ latitude: Double, _ longitude: Double) {
-        // send location info to back-end
+    @objc func sendLocation() {
+        if isBroadcastOn {
+            // send location to backend
+            print("Latitude: \(busLocation.latitude)\nLongitude: \(busLocation.longitude)")
+        }
     }
 
     func broadcastButtonSetup() {
@@ -66,10 +78,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         broadcastButton.layer.cornerRadius = 5.0
         broadcastButton.addTarget(self, action: #selector(self.changeBroadcastStatus), for: .touchUpInside)
         view.addSubview(broadcastButton)
-        broadcastButtonConstraints()
-    }
-
-    func broadcastButtonConstraints() {
         broadcastButton.translatesAutoresizingMaskIntoConstraints = false
         broadcastButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.25, constant: 0).isActive = true
         broadcastButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
@@ -81,9 +89,5 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         isBroadcastOn = isBroadcastOn ? false : true
         broadcastButton.setTitle(isBroadcastOn ? "Turn Off" : "Turn On", for: .normal)
         print("Button Tapped, now \(isBroadcastOn)")
-    }
-
-    func displayRequests() {
-        
     }
 }
