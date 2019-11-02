@@ -27,8 +27,6 @@ class ViewController: UIViewController {
                                                height: view.frame.size.height))
         if let mapView = self.mapView {
             mapView.mapType = MKMapType.standard
-            mapView.isZoomEnabled = true
-            mapView.isScrollEnabled = true
             mapView.showsUserLocation = true
             let region = MKCoordinateRegion(center: busLocation, span:
                 MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02))
