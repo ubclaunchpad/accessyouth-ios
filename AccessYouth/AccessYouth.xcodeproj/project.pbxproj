@@ -21,6 +21,9 @@
 		5F89A04F235BC9D40070FDC8 /* AccessYouthOperatorUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F89A04E235BC9D40070FDC8 /* AccessYouthOperatorUITests.swift */; };
 		5F89A05C2364EDEF0070FDC8 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F89A05B2364EDEF0070FDC8 /* Constants.swift */; };
 		5F89A05D2364EDF30070FDC8 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F89A05B2364EDEF0070FDC8 /* Constants.swift */; };
+		5F89A0612364FA590070FDC8 /* AccessNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F89A0602364FA590070FDC8 /* AccessNetwork.swift */; };
+		5F89A0632365013C0070FDC8 /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F89A0622365013C0070FDC8 /* Resolver.swift */; };
+		5F89A0642365013C0070FDC8 /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F89A0622365013C0070FDC8 /* Resolver.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +83,8 @@
 		5F89A04E235BC9D40070FDC8 /* AccessYouthOperatorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessYouthOperatorUITests.swift; sourceTree = "<group>"; };
 		5F89A050235BC9D40070FDC8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5F89A05B2364EDEF0070FDC8 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		5F89A0602364FA590070FDC8 /* AccessNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessNetwork.swift; sourceTree = "<group>"; };
+		5F89A0622365013C0070FDC8 /* Resolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Resolver.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -218,7 +223,9 @@
 		5F89A05A2364EDCF0070FDC8 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				5F89A0602364FA590070FDC8 /* AccessNetwork.swift */,
 				5F89A05B2364EDEF0070FDC8 /* Constants.swift */,
+				5F89A0622365013C0070FDC8 /* Resolver.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -484,8 +491,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F89A0632365013C0070FDC8 /* Resolver.swift in Sources */,
 				5F899FFB235BC9AE0070FDC8 /* ViewController.swift in Sources */,
 				5F899FF7235BC9AE0070FDC8 /* AppDelegate.swift in Sources */,
+				5F89A0612364FA590070FDC8 /* AccessNetwork.swift in Sources */,
 				5F89A05C2364EDEF0070FDC8 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -513,6 +522,7 @@
 				5F89A031235BC9D30070FDC8 /* ViewController.swift in Sources */,
 				5F89A02D235BC9D30070FDC8 /* AppDelegate.swift in Sources */,
 				5F89A05D2364EDF30070FDC8 /* Constants.swift in Sources */,
+				5F89A0642365013C0070FDC8 /* Resolver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
