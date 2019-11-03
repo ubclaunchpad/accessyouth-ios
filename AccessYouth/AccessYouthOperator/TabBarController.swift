@@ -13,7 +13,7 @@ class TabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         let mapVC = MapViewController()
-        mapVC.tabBarItem = UITabBarItem(tabBarSystemItem: .search, tag: 0)
+        mapVC.tabBarItem = UITabBarItem(title: "Bus", image: UIImage(named: "busIcon"), tag: 0)
 
         let requestVC = UINavigationController(rootViewController: RequestViewController())
         requestVC.tabBarItem = UITabBarItem(tabBarSystemItem: .featured, tag: 1)
