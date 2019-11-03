@@ -1,28 +1,4 @@
-//
-// Resolver.swift
-//
-// GitHub Repo and Documentation: https://github.com/hmlongco/Resolver
-//
-// Copyright © 2017 Michael Long. All rights reserved.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
+// GitHub Repo and Documentation: https://github.com/nteissler/Resolver
 
 import UIKit
 
@@ -52,7 +28,7 @@ public final class Resolver {
     /// Default registry used by the static Resolution functions and by the Resolving protocol.
     public static var root: Resolver = main
     /// Default scope applied when registering new objects.
-    public static var defaultScope = Resolver.graph
+    public static var defaultScope: ResolverScope = .graph
 
     // MARK: - Lifecycle
 
@@ -65,6 +41,10 @@ public final class Resolver {
         Resolver.performInitialRegistrations = nil
         if let registering = (Resolver.main as Any) as? ResolverRegistering {
             type(of: registering).registerAllServices()
+        } else {
+            // Some setup needed by clients
+            // https://github.com/hmlongco/Resolver/blob/master/Documentation/Registration.md
+            fatalError("Extend Resolver to support ResolverRegistering.")
         }
     }
 
@@ -359,7 +339,14 @@ public final class ResolverRegistration<Service>: ResolverOptions<Service> {
 
 // Scopes
 
-extension Resolver {
+/// Resolver scopes exist to control when resolution occurs and how resolved instances are cached.
+public class ResolverScope {
+
+    func resolve<Service>(resolver: Resolver, registration: ResolverRegistration<Service>, args: Any?) -> Service? {
+        // By default, unique services are created and initialized each and every time they're resolved. Subclass for
+        // different behaviors
+        return registration.resolve(resolver: resolver, args: args)
+    }
 
     // MARK: - Scopes
 
@@ -372,22 +359,17 @@ extension Resolver {
     /// Shared services persist while strong references to them exist. They're then deallocated until the next resolve.
     public static let shared = ResolverScopeShare()
     /// Unique services are created and initialized each and every time they're resolved.
-    public static let unique = ResolverScopeUnique()
+    public static let unique = ResolverScope()
 
-}
-
-/// Resolver scopes exist to control when resolution occurs and how resolved instances are cached. (If at all.)
-public protocol ResolverScope: class {
-    func resolve<Service>(resolver: Resolver, registration: ResolverRegistration<Service>, args: Any?) -> Service?
 }
 
 /// All application scoped services exist for lifetime of the app. (e.g Singletons)
 public class ResolverScopeApplication: ResolverScope {
 
-    public final func resolve<Service>(resolver: Resolver, registration: ResolverRegistration<Service>, args: Any?) -> Service? {
+    public final override func resolve<Service>(resolver: Resolver, registration: ResolverRegistration<Service>, args: Any?) -> Service? {
         pthread_mutex_lock(&mutex)
         defer { pthread_mutex_unlock(&mutex) }
-        if let service = cachedServices[registration.cacheKey] as? Service {
+        if let service = (cachedServices[registration.cacheKey].flatMap { $0 as? Service }) {
             return service
         }
         let service = registration.resolve(resolver: resolver, args: args)
@@ -418,15 +400,17 @@ public final class ResolverScopeCache: ResolverScopeApplication {
 /// Graph services are initialized once and only once during a given resolution cycle. This is the default scope.
 public final class ResolverScopeGraph: ResolverScope {
 
-    public final func resolve<Service>(resolver: Resolver, registration: ResolverRegistration<Service>, args: Any?) -> Service? {
+    public final override func resolve<Service>(resolver: Resolver, registration: ResolverRegistration<Service>, args: Any?) -> Service? {
         pthread_mutex_lock(&mutex)
         defer { pthread_mutex_unlock(&mutex) }
-        if let service = graph[registration.cacheKey] as? Service {
+        // Intentionally use Optional.flatMap to not mistake a nil value in a dictionary
+        // for a value for a key that doesn't exist.
+        if let service = (graph[registration.cacheKey].flatMap { $0 as? Service }) {
             return service
         }
-        resolutionDepth = resolutionDepth + 1
+        resolutionDepth += 1
         let service = registration.resolve(resolver: resolver, args: args)
-        resolutionDepth = resolutionDepth - 1
+        resolutionDepth -= 1
         if resolutionDepth == 0 {
             graph.removeAll()
         } else if let service = service, type(of: service as Any) is AnyClass {
@@ -443,10 +427,10 @@ public final class ResolverScopeGraph: ResolverScope {
 /// Shared services persist while strong references to them exist. They're then deallocated until the next resolve.
 public final class ResolverScopeShare: ResolverScope {
 
-    public final func resolve<Service>(resolver: Resolver, registration: ResolverRegistration<Service>, args: Any?) -> Service? {
+    public final override func resolve<Service>(resolver: Resolver, registration: ResolverRegistration<Service>, args: Any?) -> Service? {
         pthread_mutex_lock(&mutex)
         defer { pthread_mutex_unlock(&mutex) }
-        if let service = cachedServices[registration.cacheKey]?.service as? Service {
+        if let service = (cachedServices[registration.cacheKey].flatMap { $0 as? Service }) {
             return service
         }
         let service = registration.resolve(resolver: resolver, args: args)
@@ -462,15 +446,6 @@ public final class ResolverScopeShare: ResolverScope {
 
     private var cachedServices = [String: BoxWeak](minimumCapacity: 32)
     private var mutex = pthread_mutex_t()
-}
-
-/// Unique services are created and initialized each and every time they're resolved.
-public final class ResolverScopeUnique: ResolverScope {
-
-    public final func resolve<Service>(resolver: Resolver, registration: ResolverRegistration<Service>, args: Any?) -> Service? {
-        return registration.resolve(resolver: resolver, args: args)
-    }
-
 }
 
 /// Storyboard Automatic Resolution Protocol
