@@ -7,22 +7,20 @@
 //
 
 import Foundation
+import CoreLocation
 
 protocol AccessNetwork {
-    func fetchLocations()
+    func fetchLocations(completion: ([CLLocationCoordinate2D]) -> Void)
     func operatorUpdateLocation(uuid: String, latitude: Double, longitude: Double)
 }
 
 class AccessNetworkHTTP: AccessNetwork {
-    static let shared: AccessNetwork = AccessNetworkHTTP()
-    public init() { }
-
     let session: URLSession = URLSession(configuration: .default)
     static let localhost = "192.168.0.11"
     static let baseURL = "http://" + AccessNetworkHTTP.localhost + ":3001/api/service"
     static let opUpdateLocation = "/updateLocation"
 
-    func fetchLocations() {
+    func fetchLocations(completion: ([CLLocationCoordinate2D]) -> Void) {
 
     }
     func operatorUpdateLocation(uuid: String, latitude: Double, longitude: Double) {
@@ -61,5 +59,28 @@ class AccessNetworkHTTP: AccessNetwork {
             print("responseString = \(String(describing: responseString))")
         }
         dataTask.resume()
+    }
+
+}
+
+class AccessNetworkMock: AccessNetwork {
+    func operatorUpdateLocation(uuid: String, latitude: Double, longitude: Double) {
+    }
+    func fetchLocations(completion: ([CLLocationCoordinate2D]) -> Void) {
+        completion([
+            CLLocationCoordinate2D(latitude: 49.2671283, longitude: -123.1485172),
+            CLLocationCoordinate2D(latitude: 49.2475252, longitude: -123.1077016),
+            CLLocationCoordinate2D(latitude: 49.2661433, longitude: -123.2458232),
+        ])
+    }
+}
+
+extension Resolver {
+    static func registerNetworkServices() {
+#if OFFLINE
+        register { AccessNetworkMock() }.implements(AccessNetwork.self)
+#else
+        register { AccessNetworkHTTP() }.implements(AccessNetwork.self)
+#endif
     }
 }

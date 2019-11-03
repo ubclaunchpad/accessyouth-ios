@@ -23,3 +23,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 }
+
+extension Resolver: ResolverRegistering {
+    public static func registerAllServices() {
+        registerNetworkServices()
+    }
+}

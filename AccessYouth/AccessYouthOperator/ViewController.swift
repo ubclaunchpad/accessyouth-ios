@@ -19,7 +19,7 @@ class ViewController: UIViewController {
     var busLocation = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     var isBroadcastOn = false
     let broadcastInterval: Double = 1.0
-    let requestHTTP = AccessNetworkHTTP()
+    var accessNetwork: AccessNetwork = Resolver.resolve()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -95,7 +95,7 @@ extension ViewController: CLLocationManagerDelegate {
             print("Latitude: \(busLocation.latitude)\nLongitude: \(busLocation.longitude)")
             // hardcoded now since getting a list of available uuid is 
             let uuid = "12345"
-            self.requestHTTP.operatorUpdateLocation(uuid: uuid, latitude: busLocation.latitude, longitude: busLocation.longitude)
+            self.accessNetwork.operatorUpdateLocation(uuid: uuid, latitude: busLocation.latitude, longitude: busLocation.longitude)
         }
     }
 }
