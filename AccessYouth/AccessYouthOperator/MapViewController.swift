@@ -11,7 +11,7 @@ import MapKit
 import CoreLocation
 import Foundation
 
-class ViewController: UIViewController {
+class MapViewController: UIViewController {
     let locationManager = CLLocationManager()
     let broadcastButton = UIButton()
     var mapView: MKMapView?
@@ -22,6 +22,7 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.title = "Map"
         // set up mapview
         self.mapView = MKMapView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width,
                                                height: view.frame.size.height))
@@ -66,7 +67,7 @@ class ViewController: UIViewController {
     }
 }
 
-extension ViewController: CLLocationManagerDelegate {
+extension MapViewController: CLLocationManagerDelegate {
     func locationManagerSetup() {
         // request location access
         locationManager.requestAlwaysAuthorization()
