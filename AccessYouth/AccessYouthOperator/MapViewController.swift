@@ -19,6 +19,7 @@ class MapViewController: UIViewController {
     var busLocation = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     var isBroadcastOn = false
     let broadcastInterval: Double = 1.0
+    var accessNetwork: AccessNetwork = Resolver.resolve()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -93,6 +94,9 @@ extension MapViewController: CLLocationManagerDelegate {
         if isBroadcastOn {
             // send location to backend
             print("Latitude: \(busLocation.latitude)\nLongitude: \(busLocation.longitude)")
+            // hardcoded now since getting a list of available uuid is 
+            let uuid = "12345"
+            self.accessNetwork.operatorUpdateLocation(uuid: uuid, latitude: busLocation.latitude, longitude: busLocation.longitude)
         }
     }
 }
