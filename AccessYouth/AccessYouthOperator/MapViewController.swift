@@ -22,6 +22,7 @@ class MapViewController: UIViewController {
     let broadcastInterval: Double = 1.0
     var accessNetwork: AccessNetwork = Resolver.resolve()
     var userLocations: [CLLocationCoordinate2D] = []
+    var annotations: [MKAnnotation] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -103,6 +104,14 @@ extension MapViewController: CLLocationManagerDelegate {
     }
     
     @objc func fetchLocation() {
-//        accessNetwork.fetchLocations(completion: userLocations)
+        self.accessNetwork.fetchLocations(completion: userLocations)
+
+        for coord in userLocations {
+            var a = MKPointAnnotation()
+            a.title = "title"
+            a.coordinate = coord
+            annotations.append(a)
+        }
+        mapView?.showAnnotations(self.annotations, animated: true);
     }
 }
