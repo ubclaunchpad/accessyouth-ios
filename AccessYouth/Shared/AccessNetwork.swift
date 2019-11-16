@@ -10,7 +10,7 @@ import Foundation
 import CoreLocation
 
 protocol AccessNetwork {
-    func fetchLocations(completion: ([CLLocationCoordinate2D]) -> Void)
+    func fetchLocations(uuid: String, completion: @escaping ([CLLocationCoordinate2D]) -> Void)
     func operatorUpdateLocation(uuid: String, latitude: Double, longitude: Double)
 }
 
@@ -20,30 +20,34 @@ struct UpdateLocationNetworkType: Codable {
 
     init(uuid: String, latitude: Double, longitude: Double) {
         self.uuid = uuid
-        currentLocation = LocationNetworkType(latitude: latitude, longitude: longitude)
+        currentLocation = LocationNetworkType(lat: latitude, lon: longitude)
     }
 }
 
 struct LocationNetworkType: Codable {
-    let latitude: Double
-    let longitude: Double
+    let lat: Double
+    let lon: Double
+}
+
+struct UUIDNetworkType: Codable {
+    let uuid: String
 }
 
 class AccessNetworkHTTP: AccessNetwork {
     let session: URLSession = URLSession(configuration: .default)
     static let localhost = "192.168.0.11"
-    static let baseURL = "http://" + AccessNetworkHTTP.localhost + ":3001/api/service"
+    static let baseURL = ""
 
     enum Endpoint {
         case updateLocation(location: UpdateLocationNetworkType)
-        case fetchLocations
+        case fetchLocations(uuid: UUIDNetworkType)
 
         var httpBody: Data? {
             switch self {
             case .updateLocation(let location):
                 return try? JSONEncoder().encode(location)
-            case .fetchLocations:
-                return Data()
+            case .fetchLocations(let uuid):
+                return try? JSONEncoder().encode(uuid)
             }
         }
 
@@ -53,7 +57,7 @@ class AccessNetworkHTTP: AccessNetwork {
             case .updateLocation:
                 requestURL += "/updateLocation"
             case .fetchLocations:
-                requestURL += "/fetchLocations"
+                requestURL += "/getLocation"
             }
             guard let url = URL(string: requestURL) else {
                 fatalError("Networking URL is not properly defined")
@@ -82,8 +86,15 @@ class AccessNetworkHTTP: AccessNetwork {
         dataTask.resume()
     }
 
-    func fetchLocations(completion: ([CLLocationCoordinate2D]) -> Void) {
-
+    func fetchLocations(uuid: String, completion: @escaping ([CLLocationCoordinate2D]) -> Void) {
+        performNetworkRequest(endpoint: .fetchLocations(uuid: UUIDNetworkType(uuid: uuid))) { (data, _, error) in
+            guard let data = data, let location = try? JSONDecoder().decode(LocationNetworkType.self, from: data) else {
+                print("error", error ?? "Unknown error")
+                completion([])
+                return
+            }
+            completion([CLLocationCoordinate2D(latitude: location.lat, longitude: location.lon)])
+        }
     }
 
     func operatorUpdateLocation(uuid: String, latitude: Double, longitude: Double) {
@@ -113,7 +124,7 @@ class AccessNetworkMock: AccessNetwork {
     func operatorUpdateLocation(uuid: String, latitude: Double, longitude: Double) {
     }
 
-    func fetchLocations(completion: ([CLLocationCoordinate2D]) -> Void) {
+    func fetchLocations(uuid: String, completion: @escaping ([CLLocationCoordinate2D]) -> Void) {
         completion([
             CLLocationCoordinate2D(latitude: 49.2671283, longitude: -123.1485172),
             CLLocationCoordinate2D(latitude: 49.2475252, longitude: -123.1077016),
