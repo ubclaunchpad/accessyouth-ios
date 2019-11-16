@@ -20,5 +20,7 @@ class TabBarController: UITabBarController {
 
         let tabBarList = [mapVC, requestVC]
         self.viewControllers = tabBarList
+
+        self.tabBar.tintColor = .white
     }
 }

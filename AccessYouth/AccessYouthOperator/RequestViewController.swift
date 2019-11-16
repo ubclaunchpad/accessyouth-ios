@@ -15,7 +15,7 @@ class RequestViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.title = "Request"
+        self.title = "Requests"
 
         setupRequests()
         requestTableViewSetup()

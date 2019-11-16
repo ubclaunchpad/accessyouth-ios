@@ -15,11 +15,13 @@ class MapViewController: UIViewController {
     let locationManager = CLLocationManager()
     let broadcastButton = UIButton()
     var mapView: MKMapView?
-    var timer: Timer?
+    var timerSend: Timer?
+    var timerFetch: Timer?
     var busLocation = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     var isBroadcastOn = false
     let broadcastInterval: Double = 1.0
     var accessNetwork: AccessNetwork = Resolver.resolve()
+    var userLocations: [CLLocationCoordinate2D] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,8 +45,8 @@ class MapViewController: UIViewController {
         locationManagerSetup()
 
         // set up timer to poll for location at a fixed interval
-        timer = Timer.scheduledTimer(timeInterval: broadcastInterval, target: self, selector: #selector(sendLocation),
-                                     userInfo: nil, repeats: true)
+        timerSend = Timer.scheduledTimer(timeInterval: broadcastInterval, target: self, selector: #selector(sendLocation), userInfo: nil, repeats: true)
+        timerFetch = Timer.scheduledTimer(timeInterval: broadcastInterval, target: self, selector: #selector(fetchLocation), userInfo: nil, repeats: true)
     }
 
     func broadcastButtonSetup() {
@@ -98,5 +100,9 @@ extension MapViewController: CLLocationManagerDelegate {
             let uuid = "12345"
             self.accessNetwork.operatorUpdateLocation(uuid: uuid, latitude: busLocation.latitude, longitude: busLocation.longitude)
         }
+    }
+    
+    @objc func fetchLocation() {
+//        accessNetwork.fetchLocations(completion: userLocations)
     }
 }
