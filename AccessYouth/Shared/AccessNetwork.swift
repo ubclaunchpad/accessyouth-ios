@@ -66,12 +66,7 @@ class AccessNetworkHTTP: AccessNetwork {
         }
 
         var httpMethod: String {
-            switch self {
-            case .updateLocation:
-                return "POST"
-            case .fetchLocations:
-                return "GET"
-            }
+            return "POST"
         }
     }
 
