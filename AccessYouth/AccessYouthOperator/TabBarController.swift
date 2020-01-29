@@ -16,11 +16,12 @@ class TabBarController: UITabBarController {
         mapVC.tabBarItem = UITabBarItem(title: "Bus", image: UIImage(named: "busIcon"), tag: 0)
 
         let requestVC = UINavigationController(rootViewController: RequestViewController())
-        requestVC.tabBarItem = UITabBarItem(tabBarSystemItem: .featured, tag: 1)
+        requestVC.tabBarItem = UITabBarItem(title: "Requests", image: UIImage(named: "requestIcon"), tag: 1)
 
         let tabBarList = [mapVC, requestVC]
         self.viewControllers = tabBarList
 
         self.tabBar.tintColor = .white
+        self.tabBar.unselectedItemTintColor = .black
     }
 }
