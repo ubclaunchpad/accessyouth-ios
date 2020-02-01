@@ -39,7 +39,7 @@ class RequestViewController: UIViewController {
 
     func setUpNavigation() {
         navigationItem.title = "Requests"
-        self.navigationController?.navigationBar.barTintColor = Constants.Colors.purple
+        self.navigationController?.navigationBar.barTintColor = Constants.Colors.lightPurple
         self.navigationController?.navigationBar.isTranslucent = false
     }
 

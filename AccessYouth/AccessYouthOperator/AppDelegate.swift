@@ -17,10 +17,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         let navigationBarAppearace = UINavigationBar.appearance()
         navigationBarAppearace.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
-        navigationBarAppearace.barTintColor = Constants.Colors.purple
+        navigationBarAppearace.barTintColor = Constants.Colors.lightPurple
 
         let tabBarAppearace = UITabBar.appearance()
-        tabBarAppearace.barTintColor = Constants.Colors.purple
+        tabBarAppearace.barTintColor = Constants.Colors.lightPurple
 
         window = UIWindow(frame: UIScreen.main.bounds)
         let homeViewController = TabBarController()

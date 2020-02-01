@@ -51,7 +51,7 @@ class MapViewController: UIViewController {
     }
 
     func broadcastButtonSetup() {
-        broadcastButton.backgroundColor = Constants.Colors.purple
+        broadcastButton.backgroundColor = Constants.Colors.lightPurple
         broadcastButton.setTitleColor(.white, for: .normal)
         broadcastButton.setTitle(isBroadcastOn ? "Turn Off" : "Turn On", for: .normal)
         broadcastButton.layer.cornerRadius = 5.0
