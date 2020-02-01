@@ -11,18 +11,22 @@ import MapKit
 import CoreLocation
 import Foundation
 
-class ViewController: UIViewController {
+class MapViewController: UIViewController {
     let locationManager = CLLocationManager()
     let broadcastButton = UIButton()
     var mapView: MKMapView?
-    var timer: Timer?
+    var timerSend: Timer?
+    var timerFetch: Timer?
     var busLocation = CLLocationCoordinate2D(latitude: 0, longitude: 0)
     var isBroadcastOn = false
     let broadcastInterval: Double = 1.0
     var accessNetwork: AccessNetwork = Resolver.resolve()
+    var userLocations: [CLLocationCoordinate2D] = []
+    var annotations: [MKAnnotation] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.title = "Map"
         // set up mapview
         self.mapView = MKMapView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width,
                                                height: view.frame.size.height))
@@ -42,12 +46,12 @@ class ViewController: UIViewController {
         locationManagerSetup()
 
         // set up timer to poll for location at a fixed interval
-        timer = Timer.scheduledTimer(timeInterval: broadcastInterval, target: self, selector: #selector(sendLocation),
-                                     userInfo: nil, repeats: true)
+        timerSend = Timer.scheduledTimer(timeInterval: broadcastInterval, target: self, selector: #selector(sendLocation), userInfo: nil, repeats: true)
+//        timerFetch = Timer.scheduledTimer(timeInterval: broadcastInterval, target: self, selector: #selector(fetchLocation), userInfo: nil, repeats: true)
     }
 
     func broadcastButtonSetup() {
-        broadcastButton.backgroundColor = Constants.Colors.purple
+        broadcastButton.backgroundColor = Constants.Colors.lightPurple
         broadcastButton.setTitleColor(.white, for: .normal)
         broadcastButton.setTitle(isBroadcastOn ? "Turn Off" : "Turn On", for: .normal)
         broadcastButton.layer.cornerRadius = 5.0
@@ -67,7 +71,7 @@ class ViewController: UIViewController {
     }
 }
 
-extension ViewController: CLLocationManagerDelegate {
+extension MapViewController: CLLocationManagerDelegate {
     func locationManagerSetup() {
         // request location access
         locationManager.requestAlwaysAuthorization()

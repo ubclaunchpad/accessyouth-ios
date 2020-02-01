@@ -15,15 +15,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        let navigationBarAppearace = UINavigationBar.appearance()
+        navigationBarAppearace.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        navigationBarAppearace.barTintColor = Constants.Colors.lightPurple
+
+        let tabBarAppearace = UITabBar.appearance()
+        tabBarAppearace.barTintColor = Constants.Colors.lightPurple
 
         window = UIWindow(frame: UIScreen.main.bounds)
-        let homeViewController = ViewController()
+        let homeViewController = TabBarController()
         homeViewController.view.backgroundColor = UIColor.white
         window!.rootViewController = homeViewController
         window!.makeKeyAndVisible()
         return true
     }
-
 }
 
 extension Resolver: ResolverRegistering {
