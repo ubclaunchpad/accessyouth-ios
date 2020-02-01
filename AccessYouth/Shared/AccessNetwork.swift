@@ -10,55 +10,107 @@ import Foundation
 import CoreLocation
 
 protocol AccessNetwork {
-    func fetchLocations(completion: ([CLLocationCoordinate2D]) -> Void)
+    func fetchLocations(uuid: String, completion: @escaping ([CLLocationCoordinate2D]) -> Void)
     func operatorUpdateLocation(uuid: String, latitude: Double, longitude: Double)
+}
+
+struct UpdateLocationNetworkType: Codable {
+    let uuid: String
+    let currentLocation: LocationNetworkType
+
+    init(uuid: String, latitude: Double, longitude: Double) {
+        self.uuid = uuid
+        currentLocation = LocationNetworkType(lat: latitude, lon: longitude)
+    }
+}
+
+struct LocationNetworkType: Codable {
+    let lat: Double
+    let lon: Double
+}
+
+struct UUIDNetworkType: Codable {
+    let uuid: String
 }
 
 class AccessNetworkHTTP: AccessNetwork {
     let session: URLSession = URLSession(configuration: .default)
     static let localhost = "192.168.0.11"
-    static let baseURL = "http://" + AccessNetworkHTTP.localhost + ":3001/api/service"
-    static let opUpdateLocation = "/updateLocation"
+    static let baseURL = ""
 
-    func fetchLocations(completion: ([CLLocationCoordinate2D]) -> Void) {
+    enum Endpoint {
+        case updateLocation(location: UpdateLocationNetworkType)
+        case fetchLocations(uuid: UUIDNetworkType)
 
+        var httpBody: Data? {
+            switch self {
+            case .updateLocation(let location):
+                return try? JSONEncoder().encode(location)
+            case .fetchLocations(let uuid):
+                return try? JSONEncoder().encode(uuid)
+            }
+        }
+
+        var url: URL {
+            var requestURL = AccessNetworkHTTP.baseURL
+            switch self {
+            case .updateLocation:
+                requestURL += "/updateLocation"
+            case .fetchLocations:
+                requestURL += "/getLocation"
+            }
+            guard let url = URL(string: requestURL) else {
+                fatalError("Networking URL is not properly defined")
+            }
+            return url
+        }
+
+        var httpMethod: String {
+            return "POST"
+        }
     }
-    func operatorUpdateLocation(uuid: String, latitude: Double, longitude: Double) {
-        let requestURL = AccessNetworkHTTP.baseURL + AccessNetworkHTTP.opUpdateLocation
-        print(requestURL)
-        let url = URL(string: requestURL)
-        var request: URLRequest = URLRequest(url: url!)
-        request.httpMethod = "POST"
+
+    func performNetworkRequest(endpoint: Endpoint, completion: @escaping (Data?, URLResponse?, Error?) -> Void) {
+        let url = endpoint.url
+        var request = URLRequest(url: url)
+        request.httpMethod = endpoint.httpMethod
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
-        let parameters: [String: Any] = [
-            "currentLocation": [latitude, longitude],
-            "uuid": uuid,
-        ]
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted) // pass dictionary to nsdata object and set it as request body
-        } catch let error {
-            print(error.localizedDescription)
-        }
-        // request.httpBody = parameters.percentEscaped().data(using: .utf8)
-        let dataTask = session.dataTask(with: request) { data, response, error in
-           guard let data = data,
-               let response = response as? HTTPURLResponse,
-               error == nil else {                                              // check for fundamental networking error
-               print("error", error ?? "Unknown error")
-               return
-           }
+        request.httpBody = endpoint.httpBody
+        let dataTask = session.dataTask(with: request, completionHandler: completion)
+        dataTask.resume()
+    }
 
-           guard (200 ... 299) ~= response.statusCode else {                    // check for http errors
-               print("statusCode should be 2xx, but is \(response.statusCode)")
-               print("response = \(response)")
-               return
-           }
+    func fetchLocations(uuid: String, completion: @escaping ([CLLocationCoordinate2D]) -> Void) {
+        performNetworkRequest(endpoint: .fetchLocations(uuid: UUIDNetworkType(uuid: uuid))) { (data, _, error) in
+            guard let data = data, let location = try? JSONDecoder().decode(LocationNetworkType.self, from: data) else {
+                print("error", error ?? "Unknown error")
+                completion([])
+                return
+            }
+            completion([CLLocationCoordinate2D(latitude: location.lat, longitude: location.lon)])
+        }
+    }
+
+    func operatorUpdateLocation(uuid: String, latitude: Double, longitude: Double) {
+        let location = UpdateLocationNetworkType(uuid: uuid, latitude: latitude, longitude: longitude)
+        performNetworkRequest(endpoint: .updateLocation(location: location)) { (data, response, error) in
+            guard let data = data,
+                let response = response as? HTTPURLResponse,
+                error == nil else { // check for fundamental networking error
+                print("error", error ?? "Unknown error")
+                return
+            }
+
+            guard (200 ... 299) ~= response.statusCode else { // check for http errors
+                print("statusCode should be 2xx, but is \(response.statusCode)")
+                print("response = \(response)")
+                return
+            }
 
             let responseString = String(data: data, encoding: .utf8)
             print("responseString = \(String(describing: responseString))")
         }
-        dataTask.resume()
     }
 
 }
@@ -66,7 +118,8 @@ class AccessNetworkHTTP: AccessNetwork {
 class AccessNetworkMock: AccessNetwork {
     func operatorUpdateLocation(uuid: String, latitude: Double, longitude: Double) {
     }
-    func fetchLocations(completion: ([CLLocationCoordinate2D]) -> Void) {
+
+    func fetchLocations(uuid: String, completion: @escaping ([CLLocationCoordinate2D]) -> Void) {
         completion([
             CLLocationCoordinate2D(latitude: 49.2671283, longitude: -123.1485172),
             CLLocationCoordinate2D(latitude: 49.2475252, longitude: -123.1077016),
