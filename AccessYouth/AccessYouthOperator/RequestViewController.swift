@@ -13,9 +13,6 @@ import MapKit
 class RequestViewController: UIViewController {
     let requestTableView = UITableView()
     var requests: [Request]?
-    enum RequestType {
-        case approve, reject
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -72,60 +69,20 @@ extension RequestViewController: UITableViewDataSource, UITableViewDelegate {
         let alert = UIAlertController(title: "Approve this request?", message: message, preferredStyle: .actionSheet)
 
         alert.addAction(UIAlertAction(title: "Approve", style: .default, handler: { (_) in
-            print("User click Approve button")
-            self.showLoginAlert(requestType: RequestType.approve, indexPath)
+            Log.info("User clicked Approve button")
+            // TODO: Approve request
         }))
 
         alert.addAction(UIAlertAction(title: "Reject", style: .default, handler: { (_) in
-            print("User click Reject button")
-            self.showLoginAlert(requestType: RequestType.reject, indexPath)
+            Log.info("User clicked Reject button")
+            // TODO: Reject request
         }))
 
         alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: { (_) in
-            print("User click Dismiss button")
             self.requestTableView.deselectRow(at: indexPath, animated: false)
         }))
 
-        self.present(alert, animated: true, completion: {
-            print("completion block")
-        })
-    }
-
-    func showLoginAlert(requestType: RequestType, _ indexPath: IndexPath) {
-        let loginAlert = UIAlertController(title: "Login", message: "Enter admin password", preferredStyle: .alert)
-        loginAlert.addTextField { passwordField in
-                passwordField.isSecureTextEntry = true
-                passwordField.placeholder = "Password"
-        }
-        loginAlert.addAction(UIAlertAction(title: "Enter", style: .default) { (_) in
-            let password = loginAlert.textFields![0] as UITextField
-            loginAlert.textFields![0].isSecureTextEntry = true
-
-            if self.authenticatePassword(password: password.text!) {
-                switch requestType {
-                case RequestType.approve:
-                    let alert = UIAlertController(title: "Success", message: "Next destination has been added", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                    self.present(alert, animated: true)
-                case RequestType.reject:
-                    let alert = UIAlertController(title: "Success", message: "Next destination has been rejected", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                    self.present(alert, animated: true)
-                }
-                self.requests?.remove(at: indexPath.row)
-                DispatchQueue.main.async { self.requestTableView.reloadData() }
-            } else {
-                let alert = UIAlertController(title: "Failure", message: "Incorrect password", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                self.present(alert, animated: true)
-            }
-        })
-        self.present(loginAlert, animated: true, completion: nil)
-    }
-
-    func authenticatePassword(password: String) -> Bool {
-        // TODO: authenticate password with backend
-        return true
+        self.present(alert, animated: true)
     }
 
 }

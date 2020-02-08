@@ -25,6 +25,14 @@
 		5F89A0612364FA590070FDC8 /* AccessNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F89A0602364FA590070FDC8 /* AccessNetwork.swift */; };
 		5F89A0632365013C0070FDC8 /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F89A0622365013C0070FDC8 /* Resolver.swift */; };
 		5F89A0642365013C0070FDC8 /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F89A0622365013C0070FDC8 /* Resolver.swift */; };
+		5FB9FA3023D3C7D6007B64B2 /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB9FA2F23D3C7D6007B64B2 /* Service.swift */; };
+		5FB9FA3123D3C95E007B64B2 /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB9FA2F23D3C7D6007B64B2 /* Service.swift */; };
+		5FCC0C5A23E6333B00C89ED6 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2582A0C6236E421900678AD1 /* TabBarController.swift */; };
+		5FCC0C5B23E6334000C89ED6 /* RequestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2582A0C8236E8FF600678AD1 /* RequestViewController.swift */; };
+		5FCC0C5C23E6335100C89ED6 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2582A0CA236EA5E100678AD1 /* Request.swift */; };
+		5FCC0C5D23E6335200C89ED6 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2582A0CA236EA5E100678AD1 /* Request.swift */; };
+		5FCC0C5F23EE9C3900C89ED6 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FCC0C5E23EE9C3900C89ED6 /* Logging.swift */; };
+		5FCC0C6023EE9C3A00C89ED6 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FCC0C5E23EE9C3900C89ED6 /* Logging.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,6 +97,8 @@
 		5F89A05B2364EDEF0070FDC8 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		5F89A0602364FA590070FDC8 /* AccessNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessNetwork.swift; sourceTree = "<group>"; };
 		5F89A0622365013C0070FDC8 /* Resolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Resolver.swift; sourceTree = "<group>"; };
+		5FB9FA2F23D3C7D6007B64B2 /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
+		5FCC0C5E23EE9C3900C89ED6 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -230,9 +240,11 @@
 			isa = PBXGroup;
 			children = (
 				5F89A0602364FA590070FDC8 /* AccessNetwork.swift */,
+				5FB9FA2F23D3C7D6007B64B2 /* Service.swift */,
 				5F89A05B2364EDEF0070FDC8 /* Constants.swift */,
 				5F89A0622365013C0070FDC8 /* Resolver.swift */,
 				2582A0CA236EA5E100678AD1 /* Request.swift */,
+				5FCC0C5E23EE9C3900C89ED6 /* Logging.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -499,11 +511,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				5F89A0632365013C0070FDC8 /* Resolver.swift in Sources */,
-				2582A0CB236EA5E100678AD1 /* Request.swift in Sources */,
 				5F899FFB235BC9AE0070FDC8 /* ViewController.swift in Sources */,
 				5F899FF7235BC9AE0070FDC8 /* AppDelegate.swift in Sources */,
 				5F89A0612364FA590070FDC8 /* AccessNetwork.swift in Sources */,
+				5FCC0C5C23E6335100C89ED6 /* Request.swift in Sources */,
 				5F89A05C2364EDEF0070FDC8 /* Constants.swift in Sources */,
+				5FB9FA3023D3C7D6007B64B2 /* Service.swift in Sources */,
+				5FCC0C5F23EE9C3900C89ED6 /* Logging.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -528,14 +542,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				5F4F81F12380B3AD003B07A9 /* AccessNetwork.swift in Sources */,
-				5F89A031235BC9D30070FDC8 /* ViewController.swift in Sources */,
+				5FCC0C6023EE9C3A00C89ED6 /* Logging.swift in Sources */,
+				5F89A031235BC9D30070FDC8 /* MapViewController.swift in Sources */,
 				5F89A02D235BC9D30070FDC8 /* AppDelegate.swift in Sources */,
-				255C1F9C2380BCBD002CAA08 /* AccessNetwork.swift in Sources */,
-				2582A0C9236E8FF600678AD1 /* RequestViewController.swift in Sources */,
 				5F89A05D2364EDF30070FDC8 /* Constants.swift in Sources */,
-				2582A0CC236EA5E100678AD1 /* Request.swift in Sources */,
-				2582A0C7236E421900678AD1 /* TabBarController.swift in Sources */,
+				5FCC0C5A23E6333B00C89ED6 /* TabBarController.swift in Sources */,
 				5F89A0642365013C0070FDC8 /* Resolver.swift in Sources */,
+				5FCC0C5B23E6334000C89ED6 /* RequestViewController.swift in Sources */,
+				5FCC0C5D23E6335200C89ED6 /* Request.swift in Sources */,
+				5FB9FA3123D3C95E007B64B2 /* Service.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -719,15 +734,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = AccessYouth/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ubclaunchpad.AccessYouth;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG OFFLINE";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -738,12 +755,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = AccessYouth/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ubclaunchpad.AccessYouth;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -836,6 +855,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = AccessYouthOperator/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -854,6 +874,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = AccessYouthOperator/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = (

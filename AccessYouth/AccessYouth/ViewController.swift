@@ -14,14 +14,18 @@ class ViewController: UIViewController {
     var accessNetwork: AccessNetwork = Resolver.resolve()
     var busAnnotations = [MKPointAnnotation]()
 
-    static let drawerHeight: CGFloat = 200
+    static let buttonHeight: CGFloat = 50
 
     let mapView = MKMapView()
+    let locationManager = CLLocationManager()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.register(BusAnnotationView.self, forAnnotationViewWithReuseIdentifier: "busMarkerAnnotationView")
-        accessNetwork.fetchLocations(uuid: "", completion: plotBusLocations)
+        accessNetwork.fetchLocations(uuid: "b3f16201-51c4-4082-a859-fe8bec76466e", completion: plotBusLocations)
+        Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { (_) in
+            self.accessNetwork.fetchLocations(uuid: "b3f16201-51c4-4082-a859-fe8bec76466e", completion: self.plotBusLocations)
+        }
     }
 
     override func loadView() {
@@ -29,7 +33,6 @@ class ViewController: UIViewController {
 
         view.addSubview(mapView)
         mapView.translatesAutoresizingMaskIntoConstraints = false
-        mapView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: ViewController.drawerHeight, trailing: 0)
         NSLayoutConstraint.activate([
             mapView.topAnchor.constraint(equalTo: view.topAnchor),
             mapView.leftAnchor.constraint(equalTo: view.leftAnchor),
@@ -37,6 +40,7 @@ class ViewController: UIViewController {
             mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
         mapView.mapType = MKMapType.standard
+        locationManager.requestWhenInUseAuthorization()
         mapView.showsUserLocation = true
         mapView.delegate = self
 
@@ -44,39 +48,65 @@ class ViewController: UIViewController {
         drawer.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(drawer)
         NSLayoutConstraint.activate([
-            drawer.heightAnchor.constraint(equalToConstant: ViewController.drawerHeight),
             drawer.leftAnchor.constraint(equalTo: view.leftAnchor),
             drawer.rightAnchor.constraint(equalTo: view.rightAnchor),
             drawer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
-        let mainTitle = UILabel()
-        mainTitle.text = "Access Youth Client"
-        mainTitle.font = UIFont.preferredFont(forTextStyle: .title2)
-        mainTitle.translatesAutoresizingMaskIntoConstraints = false
-        drawer.contentView.addSubview(mainTitle)
+        let requestBusButton = UIButton(type: .system)
+        requestBusButton.backgroundColor = .systemBlue
+        requestBusButton.setTitleColor(.white, for: .normal)
+        requestBusButton.layer.cornerRadius = 10
+        requestBusButton.setTitle("Request Bus", for: .normal)
+        requestBusButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+
+        let callButton = UIButton(type: .system)
+        callButton.backgroundColor = .systemBlue
+        callButton.setTitleColor(.white, for: .normal)
+        callButton.layer.cornerRadius = 10
+        callButton.setTitle("Call Operator", for: .normal)
+        callButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+
+        let buttonsStackView = UIStackView(arrangedSubviews: [requestBusButton, callButton])
+        buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
+        drawer.contentView.addSubview(buttonsStackView)
+        buttonsStackView.distribution = .fillEqually
+        buttonsStackView.spacing = 10
+
         NSLayoutConstraint.activate([
-            mainTitle.centerXAnchor.constraint(equalTo: drawer.centerXAnchor),
-            mainTitle.centerYAnchor.constraint(equalTo: drawer.centerYAnchor),
+            buttonsStackView.topAnchor.constraint(equalTo: drawer.layoutMarginsGuide.topAnchor),
+            buttonsStackView.leadingAnchor.constraint(equalTo: drawer.layoutMarginsGuide.leadingAnchor),
+            buttonsStackView.trailingAnchor.constraint(equalTo: drawer.layoutMarginsGuide.trailingAnchor),
+            buttonsStackView.bottomAnchor.constraint(equalTo: drawer.layoutMarginsGuide.bottomAnchor),
+            buttonsStackView.heightAnchor.constraint(equalToConstant: ViewController.buttonHeight),
         ])
+
+        mapView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: view.safeAreaInsets.bottom + ViewController.buttonHeight + drawer.layoutMargins.top * 2, trailing: 0)
     }
 
     func plotBusLocations(_ locations: [CLLocationCoordinate2D]) {
-        busAnnotations.removeAll()
-        for index in 0..<locations.count {
-            let location = locations[index]
-            let busAnnotation = MKPointAnnotation()
-            busAnnotation.title = index == 0 ? "Current Bus Location" : "Next Destination"
-            busAnnotation.coordinate = location
-            mapView.addAnnotation(busAnnotation)
-            busAnnotations.append(busAnnotation)
-            if index > 0 {
-                plotDirections(source: locations[index - 1], destination: location)
+        print("plotting locations: \(locations)")
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else {
+                return
             }
+            self.busAnnotations.forEach(self.mapView.removeAnnotation)
+            self.busAnnotations.removeAll()
+            for index in 0..<locations.count {
+                let location = locations[index]
+                let busAnnotation = MKPointAnnotation()
+                busAnnotation.title = index == 0 ? "Current Bus Location" : "Next Destination"
+                busAnnotation.coordinate = location
+                self.mapView.addAnnotation(busAnnotation)
+                self.busAnnotations.append(busAnnotation)
+                if index > 0 {
+//                    self.plotDirections(source: locations[index - 1], destination: location)
+                }
+            }
+//            self.mapView.showAnnotations(self.mapView.annotations, animated: true)
         }
-        mapView.showAnnotations(mapView.annotations, animated: true)
     }
-
+/*
     func plotDirections(source: CLLocationCoordinate2D, destination: CLLocationCoordinate2D) {
         let directionRequest = MKDirections.Request()
         directionRequest.source = MKMapItem(placemark: MKPlacemark(coordinate: source))
@@ -97,7 +127,7 @@ class ViewController: UIViewController {
                 self.mapView.addOverlay((route.polyline), level: MKOverlayLevel.aboveRoads)
             }
         }
-    }
+    }*/
 }
 
 extension ViewController: MKMapViewDelegate {
