@@ -23,13 +23,15 @@ struct LocationNetworkType: Codable {
     let lat: Double
     let lon: Double
 
+    var clLocation: CLLocationCoordinate2D {
+        return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+    }
+}
+
+extension LocationNetworkType {
     init(location: CLLocationCoordinate2D) {
         lat = location.latitude
         lon = location.longitude
-    }
-
-    var clLocation: CLLocationCoordinate2D {
-        return CLLocationCoordinate2D(latitude: lat, longitude: lon)
     }
 }
 
@@ -44,11 +46,10 @@ struct LoginNetworkType: Codable {
 
 struct ServiceNetworkType: Codable {
     let uuid: String
+    let name: String
     let serviceType: ServiceType
     let currentLocation: LocationNetworkType
-    let details: String
-    let createdTime: Date
-    let updatedTime: Date
-    let deletedTime: Date
+    let description: String
+    let createdAt: Date
+    let updatedAt: Date
 }
-

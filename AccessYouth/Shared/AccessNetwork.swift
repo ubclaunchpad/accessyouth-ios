@@ -36,10 +36,24 @@ enum NetworkResult<SuccessType: Codable, FailureType: Codable> {
 class AccessNetworkHTTP {
 
     let session: URLSession = URLSession(configuration: .default)
-    static let baseURL = "http://app.accessyouth.org/api"
+    static let baseURL = "https://app.accessyouth.org/api"
     static let userNeedsLoginNotification = Notification.Name("\(String(describing: AccessNetworkHTTP.self)).userNeedsLogin")
-    private let encoder = JSONEncoder()
-    private let decoder = JSONDecoder()
+
+    private let jsonDateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        return dateFormatter
+    }()
+    private lazy var encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .formatted(jsonDateFormatter)
+        return encoder
+    }()
+    private lazy var decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .formatted(jsonDateFormatter)
+        return decoder
+    }()
 
     private var tokenCache: String?
 
@@ -106,7 +120,12 @@ class AccessNetworkHTTP {
         }
 
         var httpMethod: String {
-            return "POST"
+            switch self {
+            case .accountDetails, .getAllServices:
+                return "GET"
+            default:
+                return "POST"
+            }
         }
     }
 
@@ -144,6 +163,9 @@ class AccessNetworkHTTP {
             guard (200...299) ~= response.statusCode, let value = try? self.decoder.decode(successType, from: data) else {
                 if let value = try? self.decoder.decode(failureType, from: data) {
                     completion(.failure(response: response, reason: value))
+                } else {
+                    // This shouldn't happen
+                    completion(.otherError)
                 }
                 return
             }
@@ -268,12 +290,12 @@ class AccessNetworkMock: AccessNetwork, AccessNetworkOperator {
         completion([
             Service(
                 uuid: "",
+                name: "Main bus",
                 serviceType: .bus,
                 currentLocation: CLLocationCoordinate2D(latitude: 49.2671283, longitude: -123.1485172),
-                details: "",
-                createdTime: Date(),
-                updatedTime: Date(),
-                deletedTime: Date()
+                description: "",
+                createdAt: Date(),
+                updatedAt: Date()
             ),
         ])
     }

@@ -15,22 +15,22 @@ enum ServiceType: String, Codable {
 
 struct Service {
     let uuid: String
+    let name: String
     let serviceType: ServiceType
     let currentLocation: CLLocationCoordinate2D
-    let details: String
-    let createdTime: Date
-    let updatedTime: Date
-    let deletedTime: Date
+    let description: String
+    let createdAt: Date
+    let updatedAt: Date
 }
 
 extension Service {
     init(_ serviceNetworkType: ServiceNetworkType) {
         uuid = serviceNetworkType.uuid
+        name = serviceNetworkType.name
         serviceType = serviceNetworkType.serviceType
         currentLocation = serviceNetworkType.currentLocation.clLocation
-        details = serviceNetworkType.details
-        createdTime = serviceNetworkType.createdTime
-        updatedTime = serviceNetworkType.updatedTime
-        deletedTime = serviceNetworkType.deletedTime
+        description = serviceNetworkType.description
+        createdAt = serviceNetworkType.createdAt
+        updatedAt = serviceNetworkType.updatedAt
     }
 }
