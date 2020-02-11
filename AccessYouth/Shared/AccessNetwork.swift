@@ -33,7 +33,7 @@ enum NetworkResult<SuccessType: Codable, FailureType: Codable> {
     case otherError
 }
 
-class AccessNetworkHTTP: AccessNetwork, AccessNetworkOperator {
+class AccessNetworkHTTP {
 
     let session: URLSession = URLSession(configuration: .default)
     static let baseURL = "http://app.accessyouth.org/api"
@@ -169,6 +169,9 @@ class AccessNetworkHTTP: AccessNetwork, AccessNetworkOperator {
             }
         }
     }
+}
+
+extension AccessNetworkHTTP: AccessNetwork {
 
     func fetchLocations(uuid: String, completion: @escaping ([CLLocationCoordinate2D]) -> Void) {
         performNetworkRequest(
@@ -191,6 +194,21 @@ class AccessNetworkHTTP: AccessNetwork, AccessNetworkOperator {
         }
     }
 
+    func getAllServices(completion: @escaping ([Service]) -> Void) {
+        performNetworkRequest(endpoint: .getAllServices, successType: [ServiceNetworkType].self, failureType: String.self) { (result) in
+            // TODO: handle error cases
+            switch result {
+            case let .success(_, value):
+                completion(value.map(Service.init))
+            default:
+                completion([])
+            }
+        }
+    }
+}
+
+extension AccessNetworkHTTP: AccessNetworkOperator {
+
     func operatorUpdateLocation(uuid: String, type: ServiceType, location: CLLocationCoordinate2D, details: String) {
         let location = UpdateLocationNetworkType(uuid: uuid, location: location)
         performNetworkRequest(endpoint: .updateLocation(location: location), successType: String.self, failureType: String.self) { (result) in
@@ -202,18 +220,6 @@ class AccessNetworkHTTP: AccessNetwork, AccessNetworkOperator {
                 Log.error("Networking error on location update: \(error)")
             } else {
                 Log.error("Other error on location update")
-            }
-        }
-    }
-
-    func getAllServices(completion: @escaping ([Service]) -> Void) {
-        performNetworkRequest(endpoint: .getAllServices, successType: [ServiceNetworkType].self, failureType: String.self) { (result) in
-            // TODO: handle error cases
-            switch result {
-            case let .success(_, value):
-                completion(value.map(Service.init))
-            default:
-                completion([])
             }
         }
     }
