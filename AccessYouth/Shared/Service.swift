@@ -7,9 +7,9 @@
 //
 
 import Foundation
-import CoreLocation
+import CoreLocation.CLLocation
 
-enum ServiceType: String {
+enum ServiceType: String, Codable {
     case bus
 }
 
@@ -21,4 +21,16 @@ struct Service {
     let createdTime: Date
     let updatedTime: Date
     let deletedTime: Date
+}
+
+extension Service {
+    init(_ serviceNetworkType: ServiceNetworkType) {
+        uuid = serviceNetworkType.uuid
+        serviceType = serviceNetworkType.serviceType
+        currentLocation = serviceNetworkType.currentLocation.clLocation
+        details = serviceNetworkType.details
+        createdTime = serviceNetworkType.createdTime
+        updatedTime = serviceNetworkType.updatedTime
+        deletedTime = serviceNetworkType.deletedTime
+    }
 }

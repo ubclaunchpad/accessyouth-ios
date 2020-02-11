@@ -17,37 +17,29 @@ protocol AccessNetwork {
 protocol AccessNetworkOperator {
     func operatorUpdateLocation(uuid: String, type: ServiceType, location: CLLocationCoordinate2D, details: String)
     func login(username: String, password: String, completion: @escaping (Bool) -> Void)
+    /// Fetch account details
+    func accountDetails()
 }
 
-struct UpdateLocationNetworkType: Codable {
-    let uuid: String
-    let currentLocation: LocationNetworkType
-
-    init(uuid: String, latitude: Double, longitude: Double) {
-        self.uuid = uuid
-        currentLocation = LocationNetworkType(lat: latitude, lon: longitude)
-    }
-}
-
-struct LocationNetworkType: Codable {
-    let lat: Double
-    let lon: Double
-}
-
-struct UUIDNetworkType: Codable {
-    let uuid: String
-}
-
-struct LoginNetworkType: Codable {
-    let username: String
-    let password: String
+/// Network result with decodable messages
+enum NetworkResult<SuccessType: Codable, FailureType: Codable> {
+    /// Network call success, with decoded value of the `data` field
+    case success(response: HTTPURLResponse, value: SuccessType)
+    /// Network call 4xx, with decoded value of the `data` field
+    case failure(response: HTTPURLResponse, reason: FailureType)
+    /// Network call failure
+    case networkError(error: Error)
+    /// Other non-networking issue - should never occur (fatal!)
+    case otherError
 }
 
 class AccessNetworkHTTP: AccessNetwork, AccessNetworkOperator {
 
     let session: URLSession = URLSession(configuration: .default)
-    static let localhost = "192.168.0.11"
     static let baseURL = "http://app.accessyouth.org/api"
+    static let userNeedsLoginNotification = Notification.Name("\(String(describing: AccessNetworkHTTP.self)).userNeedsLogin")
+    private let encoder = JSONEncoder()
+    private let decoder = JSONDecoder()
 
     private var tokenCache: String?
 
@@ -74,32 +66,39 @@ class AccessNetworkHTTP: AccessNetwork, AccessNetworkOperator {
         case fetchLocations(uuid: UUIDNetworkType)
         case getAllServices
         case login(username: String, password: String)
+        case accountDetails
 
-        var httpBody: Data? {
+        func encodedHttpBody(encoder: JSONEncoder) -> Data? {
             switch self {
             case .updateLocation(let location):
-                return try? JSONEncoder().encode(location)
+                return try? encoder.encode(location)
             case .fetchLocations(let uuid):
-                return try? JSONEncoder().encode(uuid)
+                return try? encoder.encode(uuid)
             case .getAllServices:
                 return nil
             case .login(let username, let password):
-                return try? JSONEncoder().encode(LoginNetworkType(username: username, password: password))
+                return try? encoder.encode(LoginNetworkType(username: username, password: password))
+            case .accountDetails:
+                return nil
             }
         }
 
         var url: URL {
-            var requestURL = AccessNetworkHTTP.baseURL
-            switch self {
-            case .updateLocation:
-                requestURL += "/service/updateLocation"
-            case .fetchLocations:
-                requestURL += "/service/getLocation"
-            case .getAllServices:
-                requestURL += "/service/getAllServices"
-            case .login:
-                requestURL += "/account/login"
-            }
+            let requestURL = AccessNetworkHTTP.baseURL + {
+                switch self {
+                case .updateLocation:
+                    return "/service/updateLocation"
+                case .fetchLocations:
+                    return "/service/getLocation"
+                case .getAllServices:
+                    return "/service/getAllServices"
+                case .login:
+                    return "/account/login"
+                case .accountDetails:
+                    return "/account/details"
+                }
+            }()
+
             guard let url = URL(string: requestURL) else {
                 fatalError("Networking URL is not properly defined")
             }
@@ -111,7 +110,17 @@ class AccessNetworkHTTP: AccessNetwork, AccessNetworkOperator {
         }
     }
 
-    func performNetworkRequest(endpoint: Endpoint, completion: @escaping (Data?, URLResponse?, Error?) -> Void) {
+    /**
+     * Perform a network request and automatically deserialize results based
+     * on server response
+     */
+    func performNetworkRequest<SuccessType: Codable, FailureType: Codable>(
+        endpoint: Endpoint,
+        token: String? = nil,
+        successType: SuccessType.Type,
+        failureType: FailureType.Type,
+        completion: @escaping (NetworkResult<SuccessType, FailureType>) -> Void
+    ) {
         let url = endpoint.url
         var request = URLRequest(url: url)
         request.httpMethod = endpoint.httpMethod
@@ -120,69 +129,120 @@ class AccessNetworkHTTP: AccessNetwork, AccessNetworkOperator {
         if let token = token {
             request.addValue("Bearer: \(token)", forHTTPHeaderField: "Authorization")
         }
-        request.httpBody = endpoint.httpBody
-        let dataTask = session.dataTask(with: request, completionHandler: completion)
+        request.httpBody = endpoint.encodedHttpBody(encoder: encoder)
+        let dataTask = session.dataTask(with: request) { (data, response, error) in
+            if let error = error {
+                // Network error
+                completion(.networkError(error: error))
+                return
+            }
+            guard let data = data, let response = response as? HTTPURLResponse else {
+                // This shouldn't happen
+                completion(.otherError)
+                return
+            }
+            guard (200...299) ~= response.statusCode, let value = try? self.decoder.decode(successType, from: data) else {
+                if let value = try? self.decoder.decode(failureType, from: data) {
+                    completion(.failure(response: response, reason: value))
+                }
+                return
+            }
+            completion(.success(response: response, value: value))
+
+        }
         dataTask.resume()
     }
 
-    func fetchLocations(uuid: String, completion: @escaping ([CLLocationCoordinate2D]) -> Void) {
-        performNetworkRequest(endpoint: .fetchLocations(uuid: UUIDNetworkType(uuid: uuid))) { (data, _, error) in
-            guard let data = data, let location = try? JSONDecoder().decode(LocationNetworkType.self, from: data) else {
-                print("error", error ?? "Unknown error")
-                completion([])
-                return
+    func performAuthenticatedNetworkRequest<SuccessType: Codable, FailureType: Codable>(
+        endpoint: Endpoint,
+        successType: SuccessType.Type,
+        failureType: FailureType.Type,
+        completion: @escaping (NetworkResult<SuccessType, FailureType>) -> Void
+    ) {
+        if let token = token {
+            performNetworkRequest(endpoint: endpoint, token: token, successType: successType, failureType: failureType) { (result) in
+                if case let .failure(response, reason) = result, response.statusCode == 401 {
+                    // TODO: Do something for failed authentication
+                    NotificationCenter.default.post(name: AccessNetworkHTTP.userNeedsLoginNotification, object: nil)
+                }
+                completion(result)
             }
-            completion([CLLocationCoordinate2D(latitude: location.lat, longitude: location.lon)])
+        }
+    }
+
+    func fetchLocations(uuid: String, completion: @escaping ([CLLocationCoordinate2D]) -> Void) {
+        performNetworkRequest(
+            endpoint: .fetchLocations(uuid: UUIDNetworkType(uuid: uuid)),
+            successType: LocationNetworkType.self,
+            failureType: String.self
+        ) { (result) in
+            if case let .success(_, location) = result {
+                Log.info("Fetch locations success")
+                completion([CLLocationCoordinate2D(latitude: location.lat, longitude: location.lon)])
+                return
+            } else if case let .failure(_, reason) = result {
+               Log.error("Fetch locations failure, \(reason)")
+            } else if case let .networkError(error) = result {
+               Log.error("Networking error on location fetch: \(error)")
+            } else {
+               Log.error("Other error on location fetch")
+            }
+            completion([])
         }
     }
 
     func operatorUpdateLocation(uuid: String, type: ServiceType, location: CLLocationCoordinate2D, details: String) {
-        let location = UpdateLocationNetworkType(uuid: uuid, latitude: location.latitude, longitude: location.longitude)
-        performNetworkRequest(endpoint: .updateLocation(location: location)) { (data, response, error) in
-            guard let data = data,
-                let response = response as? HTTPURLResponse,
-                error == nil else { // check for fundamental networking error
-                print("error", error ?? "Unknown error")
-                return
+        let location = UpdateLocationNetworkType(uuid: uuid, location: location)
+        performNetworkRequest(endpoint: .updateLocation(location: location), successType: String.self, failureType: String.self) { (result) in
+            if case let .success(_, response) = result {
+                Log.info("Location update success, \(response)")
+            } else if case let .failure(_, reason) = result {
+                Log.error("Location update failure, \(reason)")
+            } else if case let .networkError(error) = result {
+                Log.error("Networking error on location update: \(error)")
+            } else {
+                Log.error("Other error on location update")
             }
-
-            guard (200 ... 299) ~= response.statusCode else { // check for http errors
-                print("statusCode should be 2xx, but is \(response.statusCode)")
-                print("response = \(response)")
-                return
-            }
-
-            let responseString = String(data: data, encoding: .utf8)
-            print("responseString = \(String(describing: responseString))")
         }
     }
 
     func getAllServices(completion: @escaping ([Service]) -> Void) {
-
-    }
-
-    func login(username: String, password: String, completion: @escaping (Bool) -> Void) {
-        performNetworkRequest(endpoint: .login(username: username, password: password)) { (data, response, error) in
-            if let error = error {
-                Log.error("Login error: \(error)")
-                completion(false)
-                return
+        performNetworkRequest(endpoint: .getAllServices, successType: [ServiceNetworkType].self, failureType: String.self) { (result) in
+            // TODO: handle error cases
+            switch result {
+            case let .success(_, value):
+                completion(value.map(Service.init))
+            default:
+                completion([])
             }
-            guard let data = data, let dataString = String(data: data, encoding: .utf8) else {
-                Log.error("Login error: no deserializable data received")
-                completion(false)
-                return
-            }
-            guard let response = response as? HTTPURLResponse, (200 ... 299) ~= response.statusCode else {
-                Log.error("Login error, response: \(dataString)")
-                completion(false)
-                return
-            }
-            self.token = dataString
-            completion(true)
         }
     }
 
+    func login(username: String, password: String, completion: @escaping (Bool) -> Void) {
+        performNetworkRequest(endpoint: .login(username: username, password: password), successType: String.self, failureType: String.self) { (result) in
+            if case let .success(_, token) = result {
+                self.token = token
+                completion(true)
+                return
+            }
+            if case let .failure(_, reason) = result {
+                Log.error("Login error, response: \(reason)")
+            } else if case let .networkError(error) = result {
+                Log.error("Login error: \(error)")
+            } else {
+                Log.error("Other error on login")
+            }
+            completion(false)
+        }
+    }
+
+    func accountDetails() {
+        performNetworkRequest(
+            endpoint: .accountDetails,
+            successType: String.self,
+            failureType: String.self
+        ) { (_) in }
+    }
 }
 
 class AccessNetworkMock: AccessNetwork, AccessNetworkOperator {
@@ -207,13 +267,16 @@ class AccessNetworkMock: AccessNetwork, AccessNetworkOperator {
                 details: "",
                 createdTime: Date(),
                 updatedTime: Date(),
-                deletedTime: Date()),
+                deletedTime: Date()
+            ),
         ])
     }
 
     func login(username: String, password: String, completion: @escaping (Bool) -> Void) {
         completion(true)
     }
+
+    func accountDetails() { }
 }
 
 extension Resolver {

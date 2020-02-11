@@ -33,6 +33,8 @@
 		5FCC0C5D23E6335200C89ED6 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2582A0CA236EA5E100678AD1 /* Request.swift */; };
 		5FCC0C5F23EE9C3900C89ED6 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FCC0C5E23EE9C3900C89ED6 /* Logging.swift */; };
 		5FCC0C6023EE9C3A00C89ED6 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FCC0C5E23EE9C3900C89ED6 /* Logging.swift */; };
+		5FCC0C6623F23E5100C89ED6 /* NetworkingTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FCC0C6523F23E5100C89ED6 /* NetworkingTypes.swift */; };
+		5FCC0C6723F23EFF00C89ED6 /* NetworkingTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FCC0C6523F23E5100C89ED6 /* NetworkingTypes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +101,7 @@
 		5F89A0622365013C0070FDC8 /* Resolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Resolver.swift; sourceTree = "<group>"; };
 		5FB9FA2F23D3C7D6007B64B2 /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
 		5FCC0C5E23EE9C3900C89ED6 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
+		5FCC0C6523F23E5100C89ED6 /* NetworkingTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingTypes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -240,6 +243,7 @@
 			isa = PBXGroup;
 			children = (
 				5F89A0602364FA590070FDC8 /* AccessNetwork.swift */,
+				5FCC0C6523F23E5100C89ED6 /* NetworkingTypes.swift */,
 				5FB9FA2F23D3C7D6007B64B2 /* Service.swift */,
 				5F89A05B2364EDEF0070FDC8 /* Constants.swift */,
 				5F89A0622365013C0070FDC8 /* Resolver.swift */,
@@ -516,6 +520,7 @@
 				5F89A0612364FA590070FDC8 /* AccessNetwork.swift in Sources */,
 				5FCC0C5C23E6335100C89ED6 /* Request.swift in Sources */,
 				5F89A05C2364EDEF0070FDC8 /* Constants.swift in Sources */,
+				5FCC0C6623F23E5100C89ED6 /* NetworkingTypes.swift in Sources */,
 				5FB9FA3023D3C7D6007B64B2 /* Service.swift in Sources */,
 				5FCC0C5F23EE9C3900C89ED6 /* Logging.swift in Sources */,
 			);
@@ -541,6 +546,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5FCC0C6723F23EFF00C89ED6 /* NetworkingTypes.swift in Sources */,
 				5F4F81F12380B3AD003B07A9 /* AccessNetwork.swift in Sources */,
 				5FCC0C6023EE9C3A00C89ED6 /* Logging.swift in Sources */,
 				5F89A031235BC9D30070FDC8 /* MapViewController.swift in Sources */,
